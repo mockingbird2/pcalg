@@ -18,6 +18,11 @@ import logging
 import networkx as nx
 
 _logger = logging.getLogger(__name__)
+import numpy as np
+
+from gsq.ci_tests import ci_test_bin, ci_test_dis
+from gsq.gsq_testdata import bin_data, dis_data
+
 
 def _create_complete_graph(node_ids):
     """Create a complete graph from the list of node ids.
@@ -34,6 +39,7 @@ def _create_complete_graph(node_ids):
         g.add_edge(i, j)
         pass
     return g
+
 
 def estimate_skeleton(indep_test_func, data_matrix, alpha, **kwargs):
     """Estimate a skeleton graph from the statistis information.
@@ -253,12 +259,19 @@ def estimate_cpdag(skel_graph, sep_set):
 
     return dag
 
-if __name__ == '__main__':
-    import networkx as nx
-    import numpy as np
 
-    from gsq.ci_tests import ci_test_bin, ci_test_dis
-    from gsq.gsq_testdata import bin_data, dis_data
+def timer(runnable):
+    import time
+
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        runnable(*args, **kwargs)
+        print('Run time: ', time.time() - start)
+    return wrapper
+
+
+@timer
+def run(estimation_method):
 
     # ch = logging.StreamHandler()
     # ch.setLevel(logging.DEBUG)
@@ -266,7 +279,7 @@ if __name__ == '__main__':
     # _logger.addHandler(ch)
 
     dm = np.array(bin_data).reshape((5000, 5))
-    (g, sep_set) = estimate_skeleton(indep_test_func=ci_test_bin,
+    (g, sep_set) = estimation_method(indep_test_func=ci_test_bin,
                                      data_matrix=dm,
                                      alpha=0.01)
     g = estimate_cpdag(skel_graph=g, sep_set=sep_set)
@@ -296,3 +309,10 @@ if __name__ == '__main__':
     else:
         print(' => WRONG')
         print('True edges should be:', g_answer.edges())
+
+
+if __name__ == '__main__':
+    from parallelskeleton import estimate_skeleton_parallel
+    run(estimate_skeleton)
+    print('Start parallel estimation')
+    run(estimate_skeleton_parallel)

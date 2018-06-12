@@ -281,7 +281,8 @@ def run(estimation_method):
     dm = np.array(bin_data).reshape((5000, 5))
     (g, sep_set) = estimation_method(indep_test_func=ci_test_bin,
                                      data_matrix=dm,
-                                     alpha=0.01)
+                                     alpha=0.01,
+                                     method='stable')
     g = estimate_cpdag(skel_graph=g, sep_set=sep_set)
     g_answer = nx.DiGraph()
     g_answer.add_nodes_from([0, 1, 2, 3, 4])

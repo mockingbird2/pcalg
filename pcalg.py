@@ -296,7 +296,7 @@ def run(estimation_method):
         print('True edges should be:', g_answer.edges())
 
     dm = np.array(dis_data).reshape((10000, 5))
-    (g, sep_set) = estimate_skeleton(indep_test_func=ci_test_dis,
+    (g, sep_set) = estimation_method(indep_test_func=ci_test_dis,
                                      data_matrix=dm,
                                      alpha=0.01,
                                      levels=[3,2,3,4,2])

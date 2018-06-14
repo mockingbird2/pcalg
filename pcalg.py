@@ -22,6 +22,7 @@ import numpy as np
 
 from gsq.ci_tests import ci_test_bin, ci_test_dis
 from gsq.gsq_testdata import bin_data, dis_data
+from correlationtest import partial_corr_test
 
 
 def _create_complete_graph(node_ids):
@@ -279,7 +280,7 @@ def run(estimation_method):
     # _logger.addHandler(ch)
 
     dm = np.array(bin_data).reshape((5000, 5))
-    (g, sep_set) = estimation_method(indep_test_func=ci_test_bin,
+    (g, sep_set) = estimation_method(indep_test_func=partial_corr_test,
                                      data_matrix=dm,
                                      alpha=0.01,
                                      method='stable')
@@ -296,9 +297,10 @@ def run(estimation_method):
         print('True edges should be:', g_answer.edges())
 
     dm = np.array(dis_data).reshape((10000, 5))
-    (g, sep_set) = estimation_method(indep_test_func=ci_test_dis,
+    (g, sep_set) = estimation_method(indep_test_func=partial_corr_test,
                                      data_matrix=dm,
                                      alpha=0.01,
+                                     method='stable',
                                      levels=[3,2,3,4,2])
     g = estimate_cpdag(skel_graph=g, sep_set=sep_set)
     g_answer = nx.DiGraph()

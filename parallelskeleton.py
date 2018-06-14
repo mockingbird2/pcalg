@@ -49,6 +49,7 @@ def splitted_task(level, indep_test_func, data_matrix, kwargs, stable, alpha,
 
     return task
 
+
 def merge_sep_sets(sep_sets):
     sep_set = sep_sets[0]
     for sep in sep_sets[1:]:
@@ -57,6 +58,7 @@ def merge_sep_sets(sep_sets):
                 sep_set[i][j] |= sep[i][j]
                 sep_set[j][i] |= sep[j][i]
     return sep_set
+
 
 def estimate_skeleton_parallel(indep_test_func, data_matrix, alpha, **kwargs):
     def method_stable(kwargs):

@@ -3,7 +3,7 @@ from multiprocessing import Pool
 from itertools import combinations, permutations, chain
 import logging
 
-from pcalg import _create_complete_graph
+from skeletonmethods.pcalg import _create_complete_graph
 
 _logger = logging.getLogger(__name__)
 
@@ -93,4 +93,4 @@ def estimate_skeleton_parallel(indep_test_func, data_matrix, alpha, **kwargs):
         if ('max_reach' in kwargs) and (level > kwargs['max_reach']):
             break
     sep_set = merge_sep_sets(chain(*sep_sets))
-    return (g, sep_set)
+    return g, sep_set

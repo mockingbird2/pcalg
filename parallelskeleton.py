@@ -51,8 +51,8 @@ def splitted_task(level, indep_test_func, data_matrix, kwargs, stable, alpha,
 
 
 def merge_sep_sets(sep_sets):
-    sep_set = sep_sets[0]
-    for sep in sep_sets[1:]:
+    sep_set = next(sep_sets)
+    for sep in sep_sets:
         for i in range(len(sep)):
             for j in range(len(sep[i])):
                 sep_set[i][j] |= sep[i][j]
@@ -72,11 +72,14 @@ def estimate_skeleton_parallel(indep_test_func, data_matrix, alpha, **kwargs):
     level = 0
     edges_permutations = list(permutations(node_ids, 2))
     cont = True
+    sep_sets = []
     while cont:
         task = splitted_task(level, indep_test_func, data_matrix, kwargs,
                              stable, alpha, g)
-        with Pool(10) as p:
-            conts, sep_sets, removable_edges = zip(*p.map(task, edges_permutations))
+        with Pool(2) as p:
+            results = p.map(task, edges_permutations)
+        conts, next_sep_sets, removable_edges = zip(*results)
+        sep_sets.append(next_sep_sets)
         remove_edges = filter(None, removable_edges)
         cont = all(conts)
         level += 1
@@ -84,5 +87,5 @@ def estimate_skeleton_parallel(indep_test_func, data_matrix, alpha, **kwargs):
             g.remove_edges_from(chain(*remove_edges))
         if ('max_reach' in kwargs) and (level > kwargs['max_reach']):
             break
-    sep_set = merge_sep_sets(sep_sets)
+    sep_set = merge_sep_sets(chain(*sep_sets))
     return (g, sep_set)

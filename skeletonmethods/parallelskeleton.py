@@ -2,6 +2,7 @@ from multiprocessing import Pool
 
 from itertools import combinations, permutations, chain
 import logging
+import networkx as nx
 
 from skeletonmethods.pcalg import _create_complete_graph
 
@@ -94,3 +95,52 @@ def estimate_skeleton_parallel(indep_test_func, data_matrix, alpha, **kwargs):
             break
     sep_set = merge_sep_sets(chain(*sep_sets))
     return g, sep_set
+
+def estimate_skeleton_naive(indep_test_func, data_matrix, alpha, **kwargs):
+    node_ids = range(data_matrix.shape[1])
+    complete_graph = _create_complete_graph(node_ids)
+    g, sep_sets = estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, 0, complete_graph, **kwargs)
+    sep_set = merge_sep_sets(chain(*sep_sets))
+    return g, sep_set
+
+def estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, level, g, **kwargs):
+    def method_stable(kwargs):
+        return ('method' in kwargs) and kwargs['method'] == "stable"
+
+    stable = method_stable(kwargs)
+
+    if nx.number_of_edges(g) == 0 or level > 1:
+        return g, None
+
+    # for each edge between u and v, add (u, v) and (v, u)
+    edges_permutations = list(g.edges()) + [x[::-1] for x in list(g.edges())]
+
+    cont = True
+    sep_sets = []
+    while cont:
+        task = Task(level, indep_test_func, data_matrix, kwargs,
+                    stable, alpha, g)
+        with Pool(10) as p:
+            results = p.map(task.run, edges_permutations)
+        conts, next_sep_sets, removable_edges = zip(*results)
+        sep_sets.append(next_sep_sets)
+        remove_edges = filter(None, removable_edges)
+        cont = all(conts)
+        level += 1
+        if stable:
+            g.remove_edges_from(chain(*remove_edges))
+
+            # additional subgraph handling
+            subgraphs = list(nx.connected_component_subgraphs(g))
+            if len(subgraphs) > 1:
+                graphs = []
+                for x in subgraphs:
+                    cur_g, cur_sep_set = estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, level, x, **kwargs)
+                    graphs.append(cur_g)
+                    if cur_sep_set is not None:
+                        sep_sets.extend(cur_sep_set)
+                return nx.union_all(graphs), sep_sets
+        
+        if ('max_reach' in kwargs) and (level > kwargs['max_reach']):
+            break
+    return g, sep_sets

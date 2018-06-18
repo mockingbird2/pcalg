@@ -2,7 +2,7 @@ import numpy as np
 from gsq.gsq_testdata import bin_data
 
 from pipeline import Pipeline
-from skeletonmethods import estimate_skeleton_parallel, estimate_skeleton
+from skeletonmethods import estimate_skeleton_parallel, estimate_skeleton_naive, estimate_skeleton
 from skeletonmethods.indeptests import partial_corr_test
 
 if __name__ == '__main__':
@@ -22,7 +22,12 @@ if __name__ == '__main__':
         'test_data': test_data
     }
     pipeline = Pipeline(**config)
+    
     correct = pipeline.evaluate(estimate_skeleton_parallel)
     print('Correctness: ', correct)
+
+    correct = pipeline.evaluate(estimate_skeleton_naive)
+    print('Correctness: ', correct)
+
     correct = pipeline.evaluate(estimate_skeleton)
     print('Correctness: ', correct)

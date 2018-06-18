@@ -1,2 +1,2 @@
-from .parallelskeleton import estimate_skeleton_parallel
+from .parallelskeleton import estimate_skeleton_parallel, estimate_skeleton_naive
 from .pcalg import estimate_skeleton

@@ -28,7 +28,7 @@ class Task:
         i, j = edges
         adj_i = list(self.graph.neighbors(i))
         if j not in adj_i:
-            return False, sep_set, remove_edges
+            return False, [], remove_edges
         else:
             adj_i.remove(j)
         if len(adj_i) >= self.level:
@@ -53,7 +53,7 @@ class Task:
                     sep_set[j][i] |= set(k)
                     break
             return True, sep_set, remove_edges
-        return False, sep_set, remove_edges
+        return False, [], remove_edges
 
 
 def merge_sep_sets(sep_sets):

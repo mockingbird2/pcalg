@@ -28,14 +28,14 @@ class Task:
         i, j = edges
         adj_i = list(self.graph.neighbors(i))
         if j not in adj_i:
-            return True, sep_set, remove_edges
+            return False, sep_set, remove_edges
         else:
             adj_i.remove(j)
         if len(adj_i) >= self.level:
             _logger.debug('testing %s and %s' % (i, j))
             _logger.debug('neighbors of %s are %s' % (i, str(adj_i)))
             if len(adj_i) < self.level:
-                return True, sep_set, remove_edges
+                return False, sep_set, remove_edges
             for k in combinations(adj_i, self.level):
                 _logger.debug('indep prob of %s and %s with subset %s'
                               % (i, j, str(k)))
@@ -87,7 +87,7 @@ def estimate_skeleton_parallel(indep_test_func, data_matrix, alpha, **kwargs):
         conts, next_sep_sets, removable_edges = zip(*results)
         sep_sets.append(next_sep_sets)
         remove_edges = filter(None, removable_edges)
-        cont = all(conts)
+        cont = any(conts)
         level += 1
         if stable:
             g.remove_edges_from(chain(*remove_edges))
@@ -125,7 +125,7 @@ def estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, level, g, 
         conts, next_sep_sets, removable_edges = zip(*results)
         sep_sets.append(next_sep_sets)
         remove_edges = filter(None, removable_edges)
-        cont = all(conts)
+        cont = any(conts)
         level += 1
         if stable:
             g.remove_edges_from(chain(*remove_edges))

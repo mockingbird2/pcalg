@@ -109,7 +109,7 @@ def estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, level, g, 
 
     stable = method_stable(kwargs)
 
-    if nx.number_of_edges(g) == 0 or level > 1:
+    if nx.number_of_edges(g) == 0:
         return g, None
 
     # for each edge between u and v, add (u, v) and (v, u)

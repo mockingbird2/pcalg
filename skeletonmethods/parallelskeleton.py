@@ -1,7 +1,7 @@
+import logging
+from itertools import combinations, chain
 from multiprocessing import Pool
 
-from itertools import combinations, permutations, chain
-import logging
 import networkx as nx
 
 from skeletonmethods.pcalg import _create_complete_graph
@@ -78,10 +78,10 @@ def estimate_skeleton_parallel(indep_test_func, data_matrix, alpha, **kwargs):
     g = _create_complete_graph(node_ids)
 
     level = 0
-    edges_permutations = list(permutations(node_ids, 2))
     cont = True
     sep_sets = []
     while cont:
+        edges_permutations = list(g.edges()) + [x[::-1] for x in list(g.edges())]
         task = Task(level, indep_test_func, data_matrix, kwargs,
                     stable, alpha, g)
         with Pool(10) as p:
@@ -98,12 +98,14 @@ def estimate_skeleton_parallel(indep_test_func, data_matrix, alpha, **kwargs):
     sep_set = merge_sep_sets(data_matrix.shape[1], sep_sets)
     return g, sep_set
 
+
 def estimate_skeleton_naive(indep_test_func, data_matrix, alpha, **kwargs):
     node_ids = range(data_matrix.shape[1])
     complete_graph = _create_complete_graph(node_ids)
     g, sep_sets = estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, 0, complete_graph, **kwargs)
     sep_set = merge_sep_sets(data_matrix.shape[1], sep_sets)
     return g, sep_set
+
 
 def estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, level, g, **kwargs):
     def method_stable(kwargs):
@@ -115,11 +117,11 @@ def estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, level, g, 
         return g, None
 
     # for each edge between u and v, add (u, v) and (v, u)
-    edges_permutations = list(g.edges()) + [x[::-1] for x in list(g.edges())]
 
     cont = True
     sep_sets = []
     while cont:
+        edges_permutations = list(g.edges()) + [x[::-1] for x in list(g.edges())]
         task = Task(level, indep_test_func, data_matrix, kwargs,
                     stable, alpha, g)
         with Pool(10) as p:
@@ -137,12 +139,13 @@ def estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, level, g, 
             if len(subgraphs) > 1:
                 graphs = []
                 for x in subgraphs:
-                    cur_g, cur_sep_set = estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, level, x, **kwargs)
+                    cur_g, cur_sep_set = estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, level, x,
+                                                                      **kwargs)
                     graphs.append(cur_g)
                     if cur_sep_set is not None:
                         sep_sets.extend(cur_sep_set)
                 return nx.union_all(graphs), sep_sets
-        
+
         if ('max_reach' in kwargs) and (level > kwargs['max_reach']):
             break
     return g, sep_sets

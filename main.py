@@ -1,9 +1,15 @@
+import json
 import numpy as np
 from gsq.gsq_testdata import bin_data
 
 from pipeline import Pipeline
 from skeletonmethods import estimate_skeleton_parallel, estimate_skeleton_naive, estimate_skeleton
 from skeletonmethods.indeptests import partial_corr_test
+
+
+def load_data(path):
+    with open(path, 'r') as f:
+        return json.load(f)
 
 if __name__ == '__main__':
     test_data = {
@@ -31,3 +37,6 @@ if __name__ == '__main__':
 
     correct = pipeline.evaluate(estimate_skeleton)
     print('Correctness: ', correct)
+    for comb, eq in pipeline.compare_result_graphs():
+        print('Comparing: ', comb)
+        print('Equal: ', eq)

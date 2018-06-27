@@ -24,19 +24,16 @@ if __name__ == '__main__':
     }
     config = {
         'data': np.array(bin_data).reshape((5000, 5)),
+        # 'data' : np.array(load_data("data/many_subgraphs_distinct_very_small.json")[1]),
         'estimation_params': estimation_params,
         'test_data': test_data
     }
     pipeline = Pipeline(**config)
     
-    correct = pipeline.evaluate(estimate_skeleton_parallel)
-    print('Correctness: ', correct)
+    skel1 = pipeline.evaluate(estimate_skeleton_parallel)
+    skel2 = pipeline.evaluate(estimate_skeleton_naive)
+    skel3 = pipeline.evaluate(estimate_skeleton)
 
-    correct = pipeline.evaluate(estimate_skeleton_naive)
-    print('Correctness: ', correct)
-
-    correct = pipeline.evaluate(estimate_skeleton)
-    print('Correctness: ', correct)
-    for comb, eq in pipeline.compare_result_graphs():
+    for comb, eq in pipeline.compare_result():
         print('Comparing: ', comb)
         print('Equal: ', eq)

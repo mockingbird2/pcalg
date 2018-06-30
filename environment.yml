@@ -49,7 +49,7 @@ dependencies:
   - mkl-random==1.0.1
   - networkx==2.1
   - pandas==0.23.1
-  - pybn==0.1
+  - https://github.com/ncullen93/pyBN/archive/master.zip
   - pyparsing==2.2.0
   - python-dateutil==2.7.3
   - pytz==2018.5

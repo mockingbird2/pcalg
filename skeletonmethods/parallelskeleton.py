@@ -114,9 +114,8 @@ def estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, level, g, 
     stable = method_stable(kwargs)
 
     if nx.number_of_edges(g) == 0:
+        print("level", level, ":", 1, "subgraphs")
         return g, None
-
-    # for each edge between u and v, add (u, v) and (v, u)
 
     cont = True
     sep_sets = []
@@ -136,6 +135,9 @@ def estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, level, g, 
 
             # additional subgraph handling
             subgraphs = list(nx.connected_component_subgraphs(g))
+            
+            print("level", level-1, ":", len(subgraphs), "subgraphs")
+            
             if len(subgraphs) > 1:
                 graphs = []
                 for x in subgraphs:

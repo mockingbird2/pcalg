@@ -1,5 +1,6 @@
 import time
 import networkx as nx
+import datetime
 from itertools import combinations
 
 
@@ -27,7 +28,7 @@ class Pipeline:
 
     @timer
     def build_skeleton(self, estimation_method):
-        print('Running: ', estimation_method)
+        print('Running: ', estimation_method, datetime.datetime.now())
         return estimation_method(data_matrix=self.data, **self.estimation_params)
 
     def evaluate(self, estimation_method):

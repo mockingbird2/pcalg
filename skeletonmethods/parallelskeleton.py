@@ -3,6 +3,7 @@ from itertools import combinations, chain
 from multiprocessing import Pool
 
 import networkx as nx
+import datetime
 
 from skeletonmethods.pcalg import _create_complete_graph
 
@@ -143,6 +144,8 @@ def estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, level, g, 
                 for x in subgraphs:
                     cur_g, cur_sep_set = estimate_skeleton_naive_step(indep_test_func, data_matrix, alpha, level, x,
                                                                       **kwargs)
+
+                    print("Results:", datetime.datetime.now(), len(cur_g))
                     graphs.append(cur_g)
                     if cur_sep_set is not None:
                         sep_sets.extend(cur_sep_set)
